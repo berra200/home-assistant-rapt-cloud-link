@@ -6,7 +6,7 @@ from .api.brewzilla_api import set_heating_utilization, set_pump_utilization, se
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    coordinator = hass.data["rapt_cloud"][entry.entry_id]["coordinator"]
+    coordinator = hass.data["rapt_cloud_link"][entry.entry_id]["coordinator"]
     numbers = []
 
     for device_id in coordinator.data:
@@ -24,7 +24,7 @@ class BrewZillaHeatUtilization(NumberEntity):
         self._attr_name = "Heat Utilization"
         self._attr_unique_id = f"{device_id}_heat_utilization"
         self._attr_device_info = {
-            "identifiers": {("rapt_cloud", device_id)},
+            "identifiers": {("rapt_cloud_link", device_id)},
             "name": f"BrewZilla {device_id}",
             "manufacturer": "RAPT",
             "model": "BrewZilla",
@@ -69,7 +69,7 @@ class BrewZillaPumpUtilization(NumberEntity):
         self._attr_name = "Pump Utilization"
         self._attr_unique_id = f"{device_id}_pump_utilization"
         self._attr_device_info = {
-            "identifiers": {("rapt_cloud", device_id)},
+            "identifiers": {("rapt_cloud_link", device_id)},
             "name": f"BrewZilla {device_id}",
             "manufacturer": "RAPT",
             "model": "BrewZilla",
@@ -113,7 +113,7 @@ class BrewZillaTargetTemperature(NumberEntity):
         self._attr_name = "Target Temperature"
         self._attr_unique_id = f"{device_id}_target_temperature"
         self._attr_device_info = {
-            "identifiers": {("rapt_cloud", device_id)},
+            "identifiers": {("rapt_cloud_link", device_id)},
             "name": f"BrewZilla {device_id}",
             "manufacturer": "RAPT",
             "model": "BrewZilla",

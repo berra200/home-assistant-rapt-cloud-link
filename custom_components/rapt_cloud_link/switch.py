@@ -9,7 +9,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    coordinator = hass.data["rapt_cloud"][entry.entry_id]["coordinator"]
+    coordinator = hass.data["rapt_cloud_link"][entry.entry_id]["coordinator"]
 
     switches = []
     for device_id in coordinator.data:
@@ -27,7 +27,7 @@ class BrewZillaHeaterSwitch(SwitchEntity):
         self._attr_name = "Heater"
         self._attr_unique_id = f"{self._device_id}_heater"
         self._attr_device_info = {
-            "identifiers": {("rapt_cloud", self._device_id)},
+            "identifiers": {("rapt_cloud_link", self._device_id)},
             "name": f"BrewZilla {self._device_id}",
             "manufacturer": "RAPT",
             "model": "BrewZilla",
@@ -68,7 +68,7 @@ class BrewZillaPumpSwitch(SwitchEntity):
         self._attr_name = "Pump"
         self._attr_unique_id = f"{self._device_id}_pump"
         self._attr_device_info = {
-            "identifiers": {("rapt_cloud", self._device_id)},
+            "identifiers": {("rapt_cloud_link", self._device_id)},
             "name": f"BrewZilla {self._device_id}",
             "manufacturer": "RAPT",
             "model": "BrewZilla",
