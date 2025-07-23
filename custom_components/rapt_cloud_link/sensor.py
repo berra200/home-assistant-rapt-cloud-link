@@ -10,7 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
-    """Set up BrewZilla sensors from a config entry."""
+    """Set up sensors from a config entry."""
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
     sensors = []
@@ -24,6 +24,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     else:
         _LOGGER.warning("No BrewZilla devices found")
 
+
+# ---------------------
+# Brewzilla
+# ---------------------
 
 class BrewZillaTemperatureSensor(CoordinatorEntity, SensorEntity):
     """Temperature sensor for BrewZilla."""

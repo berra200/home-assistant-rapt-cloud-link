@@ -9,6 +9,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
+    """Set up switches from a config entry."""
     coordinator = hass.data["rapt_cloud_link"][entry.entry_id]["coordinator"]
 
     switches = []
@@ -18,7 +19,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     async_add_entities(switches, update_before_add=True)
 
-    
+
+# ---------------------
+# Brewzilla
+# ---------------------
 
 class BrewZillaHeaterSwitch(SwitchEntity):
     def __init__(self, coordinator, device_id):

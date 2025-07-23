@@ -8,7 +8,6 @@ _LOGGER = logging.getLogger(__name__)
 
 class BrewZillaDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, token_manager, update_interval: timedelta, entry):
-        _LOGGER.info(f"Creating BrewZillaDataUpdateCoordinator with interval {timedelta(minutes=2)}")
         super().__init__(
             hass,
             _LOGGER,

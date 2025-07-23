@@ -6,6 +6,7 @@ from .api.brewzilla_api import set_heating_utilization, set_pump_utilization, se
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry, async_add_entities):
+    """Set up number from a config entry."""
     coordinator = hass.data["rapt_cloud_link"][entry.entry_id]["coordinator"]
     numbers = []
 
@@ -16,6 +17,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     async_add_entities(numbers, update_before_add=True)
 
+
+# ---------------------
+# Brewzilla
+# ---------------------
 
 class BrewZillaHeatUtilization(NumberEntity):
     def __init__(self, coordinator, device_id):

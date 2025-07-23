@@ -9,7 +9,7 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["sensor", "switch", "number"]
 
 async def async_setup_entry(hass, entry):
-    update_interval = timedelta(minutes=entry.options.get("poll_interval", 5))
+    update_interval = timedelta(minutes=entry.options.get("poll_interval", 3))
     _LOGGER.info("Using polling interval: %s", update_interval)
 
     email = entry.data["email"]
