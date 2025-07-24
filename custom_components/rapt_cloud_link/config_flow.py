@@ -5,7 +5,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
 from aiohttp import ClientResponseError
-from .const import TOKEN_URL, DOMAIN
+from .const import DEFAULT_TOKEN_URL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ class RaptCloudFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     async def _validate_credentials(self, email: str, token: str) -> bool:
         """Testar att autentisera mot API med e-post och token."""
         session = async_get_clientsession(self.hass)
-        url = TOKEN_URL
+        url = DEFAULT_TOKEN_URL
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         body = {
