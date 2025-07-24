@@ -7,7 +7,6 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorStateClass,
 )
-from homeassistant.helpers.entity import EntityDescription
 
 from .const import DOMAIN
 
@@ -19,8 +18,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
     sensors = []
-    for device in coordinator.data.values():
-        device_id = device.get("id")
+    for device_id, device in coordinator.data.items():
         name = device.get("name", f"BrewZilla {device_id}")
         sensors.append(BrewZillaTemperatureSensor(coordinator, device_id, name))
 
@@ -42,7 +40,7 @@ class BrewZillaTemperatureSensor(CoordinatorEntity, SensorEntity):
         self._attr_device_class = SensorDeviceClass.TEMPERATURE
         self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_device_info = {
-            "identifiers": {(DOMAIN, device_id)},
+            "identifiers": {(DOMAIN, str(device_id))},
             "name": device_name,
             "manufacturer": "RAPT",
             "model": "BrewZilla",
@@ -51,7 +49,11 @@ class BrewZillaTemperatureSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Return the current temperature."""
-        return self.coordinator.data.get(self._device_id, {}).get("temperature")
+        device = self.coordinator.data.get(self._device_id)
+        if device:
+            return device.get("temperature")
+        return None
+
 
 
 

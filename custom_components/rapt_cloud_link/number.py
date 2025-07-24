@@ -23,7 +23,8 @@ class BaseBrewZillaNumber(NumberEntity):
     def __init__(self, coordinator, device_id, name_suffix, unique_suffix, unit, min_val, max_val, step, mode=None):
         self.coordinator = coordinator
         self._device_id = device_id
-        self._attr_name = f"BrewZilla {device_id} {name_suffix}"
+        device_name = coordinator.data.get(device_id, {}).get("name", f"BrewZilla {device_id}")
+        self._attr_name = f"{device_name} {name_suffix}"
         self._attr_unique_id = f"{device_id}_{unique_suffix}"
         self._attr_native_unit_of_measurement = unit
         self._attr_native_min_value = min_val
@@ -33,8 +34,8 @@ class BaseBrewZillaNumber(NumberEntity):
             self._attr_mode = mode
         self._unsub = None
         self._attr_device_info = {
-            "identifiers": {("rapt_cloud_link", device_id)},
-            "name": f"BrewZilla {device_id}",
+            "identifiers": {("rapt_cloud_link", str(device_id))},
+            "name": device_name,
             "manufacturer": "RAPT",
             "model": "BrewZilla",
         }
@@ -118,6 +119,20 @@ class BrewZillaTargetTemperature(BaseBrewZillaNumber):
         if success and self._device_id in self.coordinator.data:
             self.coordinator.data[self._device_id]["targetTemperature"] = float(value)
             self.async_write_ha_state()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
