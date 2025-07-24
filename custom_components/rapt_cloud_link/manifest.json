@@ -1,4 +1,5 @@
 {
+  "version": "0.1.5b1",
   "domain": "rapt_cloud_link",
   "name": "RAPT Cloud Link",
   "codeowners": ["@berra200"],
@@ -7,7 +8,6 @@
   "iot_class": "cloud_polling",
   "requirements": ["aiohttp"],
   "dependencies": [],
-  "version": "0.1.4",
   "config_flow": true,
   "single_config_entry": true,
   "platforms": ["sensor", "switch", "number"],
