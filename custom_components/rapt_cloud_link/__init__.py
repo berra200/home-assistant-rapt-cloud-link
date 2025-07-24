@@ -4,6 +4,7 @@ import logging
 from .coordinator import BrewZillaDataUpdateCoordinator
 from .const import DOMAIN
 from .api.token_manager import TokenManager
+from .api.brewzilla_api import BrewZillaAPI
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["sensor", "switch", "number"]
@@ -15,16 +16,18 @@ async def async_setup_entry(hass, entry):
     email = entry.data["email"]
     api_token = entry.data["api_token"]
 
-    token_manager = TokenManager(hass, email, api_token)
-
-    # Create a brewzilla coordinator
-    coordinator = BrewZillaDataUpdateCoordinator(
-        hass,
-        token_manager,
-        update_interval,
-        entry=entry
-    )
+    token_manager = TokenManager(hass, email, api_token, entry)
+    coordinator = BrewZillaDataUpdateCoordinator(hass, token_manager, update_interval, entry)
     await coordinator.async_config_entry_first_refresh()
+    
+    # Create a brewzilla coordinator
+    # coordinator = BrewZillaDataUpdateCoordinator(
+    #     hass,
+    #     token_manager,
+    #     update_interval,
+    #     entry=entry
+    # )
+    # await coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {

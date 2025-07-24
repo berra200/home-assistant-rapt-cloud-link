@@ -2,18 +2,20 @@ import logging
 from datetime import datetime, timedelta
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
+from .common import get_token_url
 
-from ..const import TOKEN_URL
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class TokenManager:
-    def __init__(self, hass, email, api_token):
+    def __init__(self, hass, email, api_token, entry):
         self.hass = hass
         self.email = email
         self.api_token = api_token
         self.access_token = None
         self.token_expiry = None  # datetime när token går ut
+        self.entry = entry
 
     async def get_token(self):
         """Returnerar giltig token, hämtar ny om gammal eller saknas."""
@@ -28,7 +30,7 @@ class TokenManager:
 
     async def _fetch_new_token(self):
         session = async_get_clientsession(self.hass)
-        url = TOKEN_URL
+        url = get_token_url(self.entry)
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         body = {
             "grant_type": "password",

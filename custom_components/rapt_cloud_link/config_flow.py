@@ -30,12 +30,14 @@ class RaptCloudOptionsFlowHandler(config_entries.OptionsFlow):
             return self.async_create_entry(title="", data={})
 
         options = self.config_entry.options or {}
-        current_interval = options.get("poll_interval", 5)
+        current_interval = options.get("poll_interval", 3)
+        use_dev_api = options.get("use_dev_api", False)
 
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema({
                 vol.Required("poll_interval", default=current_interval): vol.All(int, vol.Range(min=1, max=60)),
+                vol.Optional("use_dev_api", default=use_dev_api): bool,
             })
         )
 
