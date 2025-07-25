@@ -24,13 +24,14 @@ class RaptCloudOptionsFlowHandler(config_entries.OptionsFlow):
                 self.config_entry,
                 options=user_input,
             )
+            _LOGGER.debug(f"Saved options: {user_input}")
 
             await self.hass.config_entries.async_reload(self.config_entry.entry_id)
 
             return self.async_create_entry(title="", data={})
 
         options = self.config_entry.options or {}
-        current_interval = options.get("poll_interval", 5)
+        current_interval = options.get("poll_interval", 3)
 
         return self.async_show_form(
             step_id="init",
@@ -41,7 +42,7 @@ class RaptCloudOptionsFlowHandler(config_entries.OptionsFlow):
 
 
 # ---------------------
-# Config Flow (vid setup)
+# Config Flow (initial setup)
 # ---------------------
 class RaptCloudFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
@@ -78,15 +79,15 @@ class RaptCloudFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    # ⬇️ Kopplar OptionsFlow till denna ConfigFlow
+    # Links the OptionsFlow to this ConfigFlow
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
         return RaptCloudOptionsFlowHandler(config_entry)
 
-    # ⬇️ Validering mot API:t
+    # Validate credentials against the API
     async def _validate_credentials(self, email: str, token: str) -> bool:
-        """Testar att autentisera mot API med e-post och token."""
+        """Attempt to authenticate against the API with email and token."""
         session = async_get_clientsession(self.hass)
         url = TOKEN_URL
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
@@ -102,14 +103,14 @@ class RaptCloudFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             resp = await session.post(url, data=body, headers=headers)
             if resp.status == 200:
                 json_resp = await resp.json()
-                _LOGGER.debug(f"Auth svar: {json_resp}")
+                _LOGGER.debug(f"Authentication response: {json_resp}")
                 return True
             else:
-                _LOGGER.warning(f"Auth misslyckades, statuskod: {resp.status}")
+                _LOGGER.warning(f"Authentication failed, status code: {resp.status}")
                 return False
         except ClientResponseError as e:
-            _LOGGER.error(f"HTTP-fel vid autentisering: {e}")
+            _LOGGER.error(f"HTTP error during authentication: {e}")
             return False
         except Exception as e:
-            _LOGGER.error(f"Fel vid autentisering: {e}")
+            _LOGGER.error(f"Unexpected error during authentication: {e}")
             return False

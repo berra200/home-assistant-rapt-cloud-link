@@ -1,7 +1,9 @@
 from datetime import timedelta
 import logging
 
-from .coordinator import BrewZillaDataUpdateCoordinator
+from .coordinator.brewzilla_coordinator import BrewZillaDataUpdateCoordinator
+from .coordinator.hydrometer_coordinator import HydrometerDataUpdateCoordinator
+
 from .const import DOMAIN
 from .api.token_manager import TokenManager
 
@@ -15,25 +17,23 @@ async def async_setup_entry(hass, entry):
     email = entry.data["email"]
     api_token = entry.data["api_token"]
 
-    token_manager = TokenManager(hass, email, api_token)
+    token_manager = TokenManager(hass, email, api_token, entry)
 
-    # Create a brewzilla coordinator
-    coordinator = BrewZillaDataUpdateCoordinator(
-        hass,
-        token_manager,
-        update_interval,
-        entry=entry
-    )
-    await coordinator.async_config_entry_first_refresh()
+    # Coordinators
+    brewzilla_coordinator = BrewZillaDataUpdateCoordinator(hass, token_manager, update_interval, entry)
+    hydrometer_coordinator = HydrometerDataUpdateCoordinator(hass, token_manager, update_interval, entry)
+
+    await brewzilla_coordinator.async_config_entry_first_refresh()
+    await hydrometer_coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
         "token_manager": token_manager,
-        "coordinator": coordinator,
+        "brewzilla_coordinator": brewzilla_coordinator,
+        "hydrometer_coordinator": hydrometer_coordinator,
     }
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
-
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
