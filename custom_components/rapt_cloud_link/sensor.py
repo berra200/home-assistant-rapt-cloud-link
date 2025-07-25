@@ -31,7 +31,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     # Hydrometer
     for device_id, device in hydrometer_coordinator.data.items():
-        name = device.get("name", f"Hydrometer {device_id}")
+        name = device.get("name", f"Pill {device_id}")
         sensors.append(HydrometerTemperatureSensor(hydrometer_coordinator, device_id, name))
         sensors.append(HydrometerGravitySensor(hydrometer_coordinator, device_id, name))
         sensors.append(HydrometerBatterySensor(hydrometer_coordinator, device_id, name))
