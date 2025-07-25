@@ -1,8 +1,5 @@
 {
-  "name": "RAPT Cloud",
-  "domain": "rapt_cloud_link",
+  "name": "RAPT Cloud Link",
   "homeassistant": "2025.6.0",
-  "country": "SE",
-  "codeowners": ["@berra200"],
-  "documentation": "https://github.com/berra200/home-assistant-rapt-cloud-link"
+  "hacs": "1.34.0"
 }
