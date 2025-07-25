@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .common import get_token_url
+from ..const import TOKEN_URL
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ class TokenManager:
 
     async def _fetch_new_token(self):
         session = async_get_clientsession(self.hass)
-        url = get_token_url(self.entry)
+        url = TOKEN_URL
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         body = {
             "grant_type": "password",

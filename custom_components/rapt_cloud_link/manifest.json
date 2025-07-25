@@ -1,5 +1,5 @@
 {
-  "version": "0.1.5-beta3",
+  "version": "0.2.0",
   "domain": "rapt_cloud_link",
   "name": "RAPT Cloud Link",
   "codeowners": ["@berra200"],
