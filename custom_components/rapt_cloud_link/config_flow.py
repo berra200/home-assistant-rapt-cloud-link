@@ -5,46 +5,12 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
 from aiohttp import ClientResponseError
-from .const import TOKEN_URL, DOMAIN
+from .const import CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT, TOKEN_URL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 
-# ---------------------
-# Options Flow (via UI)
-# ---------------------
-class RaptCloudOptionsFlowHandler(config_entries.OptionsFlow):
-    def __init__(self, config_entry):
-        super().__init__()
-        self.config_entry = config_entry
-
-    async def async_step_init(self, user_input=None):
-        if user_input is not None:
-            self.hass.config_entries.async_update_entry(
-                self.config_entry,
-                options=user_input,
-            )
-            _LOGGER.debug(f"Saved options: {user_input}")
-
-            await self.hass.config_entries.async_reload(self.config_entry.entry_id)
-
-            return self.async_create_entry(title="", data={})
-
-        options = self.config_entry.options or {}
-        current_interval = options.get("poll_interval", 3)
-
-        return self.async_show_form(
-            step_id="init",
-            data_schema=vol.Schema({
-                vol.Required("poll_interval", default=current_interval): vol.All(int, vol.Range(min=1, max=60)),
-            })
-        )
-
-
-# ---------------------
-# Config Flow (initial setup)
-# ---------------------
-class RaptCloudFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+class ConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
@@ -61,6 +27,7 @@ class RaptCloudFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     data={
                         "email": email,
                         "api_token": api_token,
+                        CONF_TEMPERATURE_UNIT: user_input.get(CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT),
                     },
                 )
             else:
@@ -70,6 +37,7 @@ class RaptCloudFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             {
                 vol.Required("email"): cv.string,
                 vol.Required("api_token"): cv.string,
+                vol.Optional(CONF_TEMPERATURE_UNIT, default=DEFAULT_TEMPERATURE_UNIT): vol.In(["C", "F"]),
             }
         )
 
@@ -78,12 +46,6 @@ class RaptCloudFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=data_schema,
             errors=errors,
         )
-
-    # Links the OptionsFlow to this ConfigFlow
-    @staticmethod
-    @callback
-    def async_get_options_flow(config_entry):
-        return RaptCloudOptionsFlowHandler(config_entry)
 
     # Validate credentials against the API
     async def _validate_credentials(self, email: str, token: str) -> bool:

@@ -38,7 +38,6 @@ async def async_setup_entry(hass, entry):
 
     return True
 
-
 async def async_unload_entry(hass, entry):
     """Unload the integration: remove platforms and clear data."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
