@@ -8,7 +8,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 
-from .const import DOMAIN
+from .const import CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -67,8 +67,11 @@ class BrewZillaTemperatureSensor(CoordinatorEntity, SensorEntity):
         }
 
     @property
+    def unit_of_measurement(self):
+        unit = self.coordinator.config_entry.data.get(CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT)
+        return "°F" if unit == "F" else "°C"
+    @property
     def native_value(self):
-        """Return the current temperature."""
         device = self.coordinator.data.get(self._device_id)
         if device:
             return device.get("temperature")
@@ -82,7 +85,7 @@ class BrewZillaConnectionStateSensor(CoordinatorEntity, SensorEntity):
         self._device_id = device_id
         self._attr_unique_id = f"{device_id}_connection_state"
         self._attr_name = f"{device_name} Connection"
-        self._attr_device_class = SensorDeviceClass.ENUM  # Visa som statusrads-värde i UI
+        self._attr_device_class = SensorDeviceClass.ENUM
         self._attr_options = ["Connected", "Disconnected"]
         self._attr_device_info = {
             "identifiers": {(DOMAIN, str(device_id))},
@@ -120,10 +123,12 @@ class HydrometerTemperatureSensor(CoordinatorEntity, SensorEntity):
             "manufacturer": "RAPT",
             "model": "Pill",
         }
-
+    @property
+    def unit_of_measurement(self):
+        unit = self.coordinator.config_entry.data.get(CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT)
+        return "°F" if unit == "F" else "°C"
     @property
     def native_value(self):
-        """Return the current temperature."""
         device = self.coordinator.data.get(self._device_id)
         if device:
             return device.get("temperature")

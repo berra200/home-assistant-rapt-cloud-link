@@ -49,7 +49,6 @@ This is a custom integration for Home Assistant that connects to [RAPT Cloud](ht
 
 ## Known Limitations
 
-- Heating Utilization value may reset to 0 in the API after setting it via the RAPT web portal (API bug).
 - Currently supports BrewZilla and RAPT Pill devices; more coming soon.
 
 ## Tips & Notes
