@@ -66,12 +66,12 @@ class BrewZillaHeatUtilization(BaseBrewZillaNumber):
 
     @property
     def native_value(self):
-        return self.coordinator.data.get(self._device_id, {}).get("heatUtilisation", 0)
+        return self.coordinator.data.get(self._device_id, {}).get("heatingUtilisation", 0)
 
     async def async_set_native_value(self, value: float):
         success = await self.coordinator.api.set_heating_utilization(self._device_id, int(value))
         if success and self._device_id in self.coordinator.data:
-            self.coordinator.data[self._device_id]["heatUtilisation"] = int(value)
+            self.coordinator.data[self._device_id]["heatingUtilisation"] = int(value)
             self.async_write_ha_state()
 
 
