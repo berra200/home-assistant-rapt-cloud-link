@@ -1,15 +1,13 @@
 {
-  "version": "0.2.0",
   "domain": "rapt_cloud_link",
   "name": "RAPT Cloud Link",
   "codeowners": ["@berra200"],
+  "config_flow": true,
+  "dependencies": ["http"],
   "documentation": "https://github.com/berra200/home-assistant-rapt-cloud-link",
   "integration_type": "hub",
   "iot_class": "cloud_polling",
-  "requirements": ["aiohttp"],
-  "dependencies": [],
-  "config_flow": true,
-  "platforms": ["sensor", "switch", "number"],
   "issue_tracker": "https://github.com/berra200/home-assistant-rapt-cloud-link/issues",
-  "min_homeassistant_version": "2025.6.0"
+  "requirements": ["aiohttp"],
+  "version": "0.2.0"
 }
