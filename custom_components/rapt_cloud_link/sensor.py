@@ -168,8 +168,8 @@ class HydrometerBatterySensor(CoordinatorEntity, SensorEntity):
         self._device_id = device_id
         self._attr_unique_id = f"{device_id}_battery"
         self._attr_name = f"{device_name} Battery"
-        self._attr_native_unit_of_measurement = "V"
-        self._attr_device_class = SensorDeviceClass.VOLTAGE
+        self._attr_native_unit_of_measurement = "%"
+        self._attr_device_class = SensorDeviceClass.BATTERY
         self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_device_info = {
             "identifiers": {(DOMAIN, str(device_id))},
@@ -183,7 +183,7 @@ class HydrometerBatterySensor(CoordinatorEntity, SensorEntity):
         """Return the current battery."""
         device = self.coordinator.data.get(self._device_id)
         if device:
-            return device.get("battery")
+            return round(device.get("battery"), 1)
         return None
     
 class HydrometerConnectionStateSensor(CoordinatorEntity, SensorEntity):
