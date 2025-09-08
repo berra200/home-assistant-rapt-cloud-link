@@ -157,7 +157,7 @@ class HydrometerGravitySensor(CoordinatorEntity, SensorEntity):
         """Return the current gravity."""
         device = self.coordinator.data.get(self._device_id)
         if device:
-            return device.get("gravity")
+            return device.get("gravity") / 1000
         return None
     
 class HydrometerBatterySensor(CoordinatorEntity, SensorEntity):
@@ -210,3 +210,35 @@ class HydrometerConnectionStateSensor(CoordinatorEntity, SensorEntity):
         if device:
             return device.get("connectionState", "Disconnected")
         return "Disconnected"
+
+
+# ---------------------
+# Temperature Controller
+# ---------------------
+class TemperatureControllerTemperatureSensor(CoordinatorEntity, SensorEntity):
+    """TemperatureController Temperature Sensor."""
+
+    def __init__(self, coordinator, device_id: str, device_name: str):
+        super().__init__(coordinator)
+        self._device_id = device_id
+        self._attr_unique_id = f"{device_id}_temperature_controller"
+        self._attr_name = f"{device_name} Temperature"
+        self._attr_native_unit_of_measurement = "°C"
+        self._attr_device_class = SensorDeviceClass.TEMPERATURE
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, str(device_id))},
+            "name": device_name,
+            "manufacturer": "RAPT",
+            "model": "Temperature Controller",
+        }
+    @property
+    def unit_of_measurement(self):
+        unit = self.coordinator.config_entry.data.get(CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT)
+        return "°F" if unit == "F" else "°C"
+    @property
+    def native_value(self):
+        device = self.coordinator.data.get(self._device_id)
+        if device:
+            return device.get("temperature")
+        return None
