@@ -157,7 +157,7 @@ class HydrometerGravitySensor(CoordinatorEntity, SensorEntity):
         """Return the current gravity."""
         device = self.coordinator.data.get(self._device_id)
         if device:
-            return device.get("gravity")
+            return device.get("gravity") / 1000
         return None
     
 class HydrometerBatterySensor(CoordinatorEntity, SensorEntity):
