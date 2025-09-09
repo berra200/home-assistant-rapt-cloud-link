@@ -42,14 +42,8 @@ This is a custom integration for Home Assistant that connects to [RAPT Cloud](ht
 
 ## Upcoming Features
 
-- Support for Fahrenheit units.
-- Temperature controller entity to allow more precise automation.
 - Additional device types and enhanced sensor/control options.
 - Improved error handling and stability.
-
-## Known Limitations
-
-- Currently supports BrewZilla and RAPT Pill devices; more coming soon.
 
 ## Tips & Notes
 

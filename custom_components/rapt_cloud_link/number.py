@@ -106,13 +106,13 @@ class BrewZillaTargetTemperature(BaseBrewZillaNumber):
             unique_suffix="target_temperature",
             unit="°C",
             min_val=0.0,
-            max_val=105.0,
+            max_val=110.0,
             step=0.1,
             mode="box"
         )
 
     @property
-    def unit_of_measurement(self):
+    def native_unit_of_measurement(self):
         unit = self.coordinator.config_entry.data.get(CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT)
         return "°F" if unit == "F" else "°C"
     @property
