@@ -3,6 +3,7 @@ import logging
 
 from .coordinator.brewzilla_coordinator import BrewZillaDataUpdateCoordinator
 from .coordinator.hydrometer_coordinator import HydrometerDataUpdateCoordinator
+from .coordinator.temperature_controller_coordinator import TemperatureControllerDataUpdateCoordinator
 
 from .const import DOMAIN
 from .api.token_manager import TokenManager
@@ -22,15 +23,18 @@ async def async_setup_entry(hass, entry):
     # Coordinators
     brewzilla_coordinator = BrewZillaDataUpdateCoordinator(hass, token_manager, update_interval, entry)
     hydrometer_coordinator = HydrometerDataUpdateCoordinator(hass, token_manager, update_interval, entry)
+    temperature_controller_coordinator = TemperatureControllerDataUpdateCoordinator(hass, token_manager, update_interval, entry)
 
     await brewzilla_coordinator.async_config_entry_first_refresh()
     await hydrometer_coordinator.async_config_entry_first_refresh()
+    await temperature_controller_coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
         "token_manager": token_manager,
         "brewzilla_coordinator": brewzilla_coordinator,
         "hydrometer_coordinator": hydrometer_coordinator,
+        "temperature_controller_coordinator": temperature_controller_coordinator,
     }
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
