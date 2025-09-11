@@ -17,6 +17,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     """Set up BrewZilla sensors from a config entry."""
     brewzilla_coordinator = hass.data[DOMAIN][entry.entry_id]["brewzilla_coordinator"]
     hydrometer_coordinator = hass.data[DOMAIN][entry.entry_id]["hydrometer_coordinator"]
+    temperature_controller_coordinator = hass.data[DOMAIN][entry.entry_id]["temperature_controller_coordinator"]
 
     sensors = []
 
@@ -39,6 +40,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     if not hydrometer_coordinator.data:
         _LOGGER.info("No Hydrometer devices found")
+
+    # Temperature Controller
+    for device_id, device in temperature_controller_coordinator.data.items():
+        name = device.get("name", f"Temperature Controller {device_id}")
+        sensors.append(TemperatureControllerTemperatureSensor(temperature_controller_coordinator, device_id, name))
+
+    if not hydrometer_coordinator.data:
+        _LOGGER.info("No Temperature Controller devices found")
+
 
     # Lägg till alla en gång
     if sensors:
