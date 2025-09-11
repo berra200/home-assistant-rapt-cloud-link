@@ -118,9 +118,12 @@ class BrewZillaTargetTemperature(BaseBrewZillaNumber):
     @property
     def native_value(self):
         unit = self.coordinator.config_entry.data.get(CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT)
+        value = self.coordinator.data.get(self._device_id, {}).get("targetTemperature", 20.0)
+
         if(unit == "F"):
-            return (self.coordinator.data.get(self._device_id, {}).get("targetTemperature", 20.0) * 9/5) + 32
-        return self.coordinator.data.get(self._device_id, {}).get("targetTemperature", 20.0)
+            value = (value * 9/5) + 32
+            
+        return round(value, 1)
 
     async def async_set_native_value(self, value: float):
         success = await self.coordinator.api.set_target_temperature(self._device_id, float(value))
