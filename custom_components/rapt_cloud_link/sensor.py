@@ -1,20 +1,17 @@
 import logging
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.components.sensor import (
-    SensorEntity,
     SensorDeviceClass,
     SensorStateClass,
 )
-
 from .const import CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT, DOMAIN
+from .base import BaseRaptSensor
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
-    """Set up BrewZilla sensors from a config entry."""
     brewzilla_coordinator = hass.data[DOMAIN][entry.entry_id]["brewzilla_coordinator"]
     hydrometer_coordinator = hass.data[DOMAIN][entry.entry_id]["hydrometer_coordinator"]
     temperature_controller_coordinator = hass.data[DOMAIN][entry.entry_id]["temperature_controller_coordinator"]
@@ -24,57 +21,44 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     # BrewZilla
     for device_id, device in brewzilla_coordinator.data.items():
         name = device.get("name", f"BrewZilla {device_id}")
-        sensors.append(BrewZillaTemperatureSensor(brewzilla_coordinator, device_id, name))
-        sensors.append(BrewZillaConnectionStateSensor(brewzilla_coordinator, device_id, name))
-
-    if not brewzilla_coordinator.data:
-        _LOGGER.info("No BrewZilla devices found")
+        sensors.append(BrewZillaTemperatureSensor(brewzilla_coordinator, device_id))
+        sensors.append(BrewZillaConnectionStateSensor(brewzilla_coordinator, device_id))
 
     # Hydrometer
     for device_id, device in hydrometer_coordinator.data.items():
         name = device.get("name", f"Pill {device_id}")
-        sensors.append(HydrometerTemperatureSensor(hydrometer_coordinator, device_id, name))
-        sensors.append(HydrometerGravitySensor(hydrometer_coordinator, device_id, name))
-        sensors.append(HydrometerBatterySensor(hydrometer_coordinator, device_id, name))
-        sensors.append(HydrometerConnectionStateSensor(hydrometer_coordinator, device_id, name))
-
-    if not hydrometer_coordinator.data:
-        _LOGGER.info("No Hydrometer devices found")
+        sensors.append(HydrometerTemperatureSensor(hydrometer_coordinator, device_id))
+        sensors.append(HydrometerGravitySensor(hydrometer_coordinator, device_id))
+        sensors.append(HydrometerBatterySensor(hydrometer_coordinator, device_id))
+        sensors.append(HydrometerConnectionStateSensor(hydrometer_coordinator, device_id))
 
     # Temperature Controller
     for device_id, device in temperature_controller_coordinator.data.items():
         name = device.get("name", f"Temperature Controller {device_id}")
-        sensors.append(TemperatureControllerTemperatureSensor(temperature_controller_coordinator, device_id, name))
-
-    if not hydrometer_coordinator.data:
-        _LOGGER.info("No Temperature Controller devices found")
+        sensors.append(TemperatureControllerTemperatureSensor(temperature_controller_coordinator, device_id))
 
 
-    # Lägg till alla en gång
+    # Add sensors if any
     if sensors:
-        async_add_entities(sensors)
+        async_add_entities(sensors, update_before_add=True)
 
 
 # ---------------------
 # BrewZilla
 # ---------------------
-class BrewZillaTemperatureSensor(CoordinatorEntity, SensorEntity):
+class BrewZillaTemperatureSensor(BaseRaptSensor):
     """BrewZilla Temperature Sensor."""
-
-    def __init__(self, coordinator, device_id: str, device_name: str):
-        super().__init__(coordinator)
-        self._device_id = device_id
-        self._attr_unique_id = f"{device_id}_temperature"
-        self._attr_name = f"{device_name} Temperature"
-        self._attr_native_unit_of_measurement = "°C"
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(
+            coordinator,
+            device_id,
+            model="BrewZilla",
+            name_suffix="Temperature",
+            unique_suffix="temperature",
+            unit="°C"
+        )
         self._attr_device_class = SensorDeviceClass.TEMPERATURE
         self._attr_state_class = SensorStateClass.MEASUREMENT
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, str(device_id))},
-            "name": device_name,
-            "manufacturer": "RAPT",
-            "model": "BrewZilla",
-        }
 
     @property
     def unit_of_measurement(self):
@@ -87,22 +71,18 @@ class BrewZillaTemperatureSensor(CoordinatorEntity, SensorEntity):
             return device.get("temperature")
         return None
     
-class BrewZillaConnectionStateSensor(CoordinatorEntity, SensorEntity):
+class BrewZillaConnectionStateSensor(BaseRaptSensor):
     """BrewZilla Connection State Sensor."""
-
-    def __init__(self, coordinator, device_id: str, device_name: str):
-        super().__init__(coordinator)
-        self._device_id = device_id
-        self._attr_unique_id = f"{device_id}_connection_state"
-        self._attr_name = f"{device_name} Connection"
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(
+            coordinator,
+            device_id,
+            model="BrewZilla",
+            name_suffix="Connection",
+            unique_suffix="connection_state"
+        )
         self._attr_device_class = SensorDeviceClass.ENUM
         self._attr_options = ["Connected", "Disconnected"]
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, str(device_id))},
-            "name": device_name,
-            "manufacturer": "RAPT",
-            "model": "BrewZilla",
-        }
 
     @property
     def native_value(self):
@@ -116,23 +96,20 @@ class BrewZillaConnectionStateSensor(CoordinatorEntity, SensorEntity):
 # ---------------------
 # Hydrometer
 # ---------------------
-class HydrometerTemperatureSensor(CoordinatorEntity, SensorEntity):
+class HydrometerTemperatureSensor(BaseRaptSensor):
     """Hydrometer Temperature Sensor."""
-
-    def __init__(self, coordinator, device_id: str, device_name: str):
-        super().__init__(coordinator)
-        self._device_id = device_id
-        self._attr_unique_id = f"{device_id}_temperature"
-        self._attr_name = f"{device_name} Temperature"
-        self._attr_native_unit_of_measurement = "°C"
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(
+            coordinator,
+            device_id,
+            model="Hydrometer",
+            name_suffix="Temperature",
+            unique_suffix="temperature",
+            unit="°C"
+        )
         self._attr_device_class = SensorDeviceClass.TEMPERATURE
         self._attr_state_class = SensorStateClass.MEASUREMENT
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, str(device_id))},
-            "name": device_name,
-            "manufacturer": "RAPT",
-            "model": "Pill",
-        }
+
     @property
     def unit_of_measurement(self):
         unit = self.coordinator.config_entry.data.get(CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT)
@@ -144,23 +121,19 @@ class HydrometerTemperatureSensor(CoordinatorEntity, SensorEntity):
             return device.get("temperature")
         return None
     
-class HydrometerGravitySensor(CoordinatorEntity, SensorEntity):
+class HydrometerGravitySensor(BaseRaptSensor):
     """Hydrometer Gravity Sensor."""
-
-    def __init__(self, coordinator, device_id: str, device_name: str):
-        super().__init__(coordinator)
-        self._device_id = device_id
-        self._attr_unique_id = f"{device_id}_gravity"
-        self._attr_name = f"{device_name} Gravity"
-        self._attr_native_unit_of_measurement = "SG"  # Specific Gravity
-        self._attr_device_class = None  # Ingen standardklass för gravity
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(
+            coordinator,
+            device_id,
+            model="Hydrometer",
+            name_suffix="Gravity",
+            unique_suffix="gravity",
+            unit="SG"  # Specific Gravity
+        )
+        self._attr_device_class = None # No specific device class for gravity
         self._attr_state_class = SensorStateClass.MEASUREMENT
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, str(device_id))},
-            "name": device_name,
-            "manufacturer": "RAPT",
-            "model": "Pill",
-        }
 
     @property
     def native_value(self):
@@ -173,23 +146,20 @@ class HydrometerGravitySensor(CoordinatorEntity, SensorEntity):
             return round(sg, 3)
         return None
     
-class HydrometerBatterySensor(CoordinatorEntity, SensorEntity):
-    """Hydrometer Battery Sensor."""
 
-    def __init__(self, coordinator, device_id: str, device_name: str):
-        super().__init__(coordinator)
-        self._device_id = device_id
-        self._attr_unique_id = f"{device_id}_battery"
-        self._attr_name = f"{device_name} Battery"
-        self._attr_native_unit_of_measurement = "%"
+class HydrometerBatterySensor(BaseRaptSensor):
+    """Hydrometer Battery Sensor."""
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(
+            coordinator,
+            device_id,
+            model="Hydrometer",
+            name_suffix="Battery",
+            unique_suffix="battery",
+            unit="%"
+        )
         self._attr_device_class = SensorDeviceClass.BATTERY
         self._attr_state_class = SensorStateClass.MEASUREMENT
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, str(device_id))},
-            "name": device_name,
-            "manufacturer": "RAPT",
-            "model": "Pill",
-        }
 
     @property
     def native_value(self):
@@ -199,22 +169,18 @@ class HydrometerBatterySensor(CoordinatorEntity, SensorEntity):
             return round(device.get("battery"), 1)
         return None
     
-class HydrometerConnectionStateSensor(CoordinatorEntity, SensorEntity):
+class HydrometerConnectionStateSensor(BaseRaptSensor):
     """Hydrometer Connection State Sensor."""
-
-    def __init__(self, coordinator, device_id: str, device_name: str):
-        super().__init__(coordinator)
-        self._device_id = device_id
-        self._attr_unique_id = f"{device_id}_connection_state"
-        self._attr_name = f"{device_name} Connection"
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(
+            coordinator,
+            device_id,
+            model="Hydrometer",
+            name_suffix="Connection",
+            unique_suffix="connection_state"
+        )
         self._attr_device_class = SensorDeviceClass.ENUM
         self._attr_options = ["Connected", "Disconnected"]
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, str(device_id))},
-            "name": device_name,
-            "manufacturer": "RAPT",
-            "model": "Pill",
-        }
 
     @property
     def native_value(self):
@@ -228,23 +194,20 @@ class HydrometerConnectionStateSensor(CoordinatorEntity, SensorEntity):
 # ---------------------
 # Temperature Controller
 # ---------------------
-class TemperatureControllerTemperatureSensor(CoordinatorEntity, SensorEntity):
+class TemperatureControllerTemperatureSensor(BaseRaptSensor):
     """TemperatureController Temperature Sensor."""
-
-    def __init__(self, coordinator, device_id: str, device_name: str):
-        super().__init__(coordinator)
-        self._device_id = device_id
-        self._attr_unique_id = f"{device_id}_temperature_controller"
-        self._attr_name = f"{device_name} Temperature"
-        self._attr_native_unit_of_measurement = "°C"
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(
+            coordinator,
+            device_id,
+            model="Temperature Controller",
+            name_suffix="Temperature",
+            unique_suffix="temperature",
+            unit="°C"
+        )
         self._attr_device_class = SensorDeviceClass.TEMPERATURE
         self._attr_state_class = SensorStateClass.MEASUREMENT
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, str(device_id))},
-            "name": device_name,
-            "manufacturer": "RAPT",
-            "model": "Temperature Controller",
-        }
+
     @property
     def unit_of_measurement(self):
         unit = self.coordinator.config_entry.data.get(CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT)

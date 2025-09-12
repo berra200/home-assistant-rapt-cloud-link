@@ -2,37 +2,33 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 import logging
+from .base import BaseRaptSwitch
 
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    """Set up BrewZilla switches from a config entry."""
     brewzilla_coordinator = hass.data[DOMAIN][entry.entry_id]["brewzilla_coordinator"]
+
     switches = []
 
     for device_id, device in brewzilla_coordinator.data.items():
         name = device.get("name", f"BrewZilla {device_id}")
-        switches.append(BrewZillaHeaterSwitch(brewzilla_coordinator, device_id, name))
-        switches.append(BrewZillaPumpSwitch(brewzilla_coordinator, device_id, name))
+        switches.append(BrewZillaHeaterSwitch(brewzilla_coordinator, device_id))
+        switches.append(BrewZillaPumpSwitch(brewzilla_coordinator, device_id))
 
     if switches:
         async_add_entities(switches, update_before_add=True)
-    else:
-        _LOGGER.warning("No BrewZilla devices found")
 
 
-class BrewZillaHeaterSwitch(CoordinatorEntity, SwitchEntity):
-    def __init__(self, coordinator, device_id: str, device_name: str):
-        super().__init__(coordinator)
-        self._device_id = device_id
-        self._attr_name = f"{device_name} Heater"
-        self._attr_unique_id = f"{device_id}_heater"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, str(device_id))},
-            "name": device_name,
-            "manufacturer": "RAPT",
-            "model": "BrewZilla",
-        }
+class BrewZillaHeaterSwitch(BaseRaptSwitch):
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(
+            coordinator,
+            device_id,
+            model="BrewZilla",
+            name_suffix="Heater",
+            unique_suffix="heater"
+        )
 
     @property
     def is_on(self):
@@ -58,18 +54,15 @@ class BrewZillaHeaterSwitch(CoordinatorEntity, SwitchEntity):
             self.async_write_ha_state()
 
 
-class BrewZillaPumpSwitch(CoordinatorEntity, SwitchEntity):
-    def __init__(self, coordinator, device_id: str, device_name: str):
-        super().__init__(coordinator)
-        self._device_id = device_id
-        self._attr_name = f"{device_name} Pump"
-        self._attr_unique_id = f"{device_id}_pump"
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, str(device_id))},
-            "name": device_name,
-            "manufacturer": "RAPT",
-            "model": "BrewZilla",
-        }
+class BrewZillaPumpSwitch(BaseRaptSwitch):
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(
+            coordinator,
+            device_id,
+            model="BrewZilla",
+            name_suffix="Pump",
+            unique_suffix="pump"
+        )
 
     @property
     def is_on(self):
