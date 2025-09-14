@@ -5,7 +5,7 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorStateClass,
 )
-from .const import CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT, DOMAIN
+from .const import BONDED_DEVICE_TYPES, CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT, DOMAIN
 from .base import BaseRaptSensor
 
 _LOGGER = logging.getLogger(__name__)
@@ -15,8 +15,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     brewzilla_coordinator = hass.data[DOMAIN][entry.entry_id]["brewzilla_coordinator"]
     hydrometer_coordinator = hass.data[DOMAIN][entry.entry_id]["hydrometer_coordinator"]
     temperature_controller_coordinator = hass.data[DOMAIN][entry.entry_id]["temperature_controller_coordinator"]
+    bonded_devices_coordinator = hass.data[DOMAIN][entry.entry_id]["bonded_devices_coordinator"]
 
     sensors = []
+
+    # Bonded Devices
+    for device_id, device in bonded_devices_coordinator.data.items():
+        if device.get("deviceType") in BONDED_DEVICE_TYPES:
+            device_type = device.get("deviceType")
+            if "Temp" in device_type:
+                sensors.append(BondedDeviceTemperatureSensor(bonded_devices_coordinator, device_id))
+            if "Humidity" in device_type:
+                sensors.append(BondedDeviceHumiditySensor(bonded_devices_coordinator, device_id))
+            if "Pressure" in device_type:
+                sensors.append(BondedDevicePressureSensor(bonded_devices_coordinator, device_id))
+            sensors.append(BondedDeviceBatterySensor(bonded_devices_coordinator, device_id))
 
     # BrewZilla
     for device_id, device in brewzilla_coordinator.data.items():
@@ -212,9 +225,83 @@ class TemperatureControllerTemperatureSensor(BaseRaptSensor):
     def unit_of_measurement(self):
         unit = self.coordinator.config_entry.data.get(CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT)
         return "°F" if unit == "F" else "°C"
+
     @property
     def native_value(self):
         device = self.coordinator.data.get(self._device_id)
         if device:
             return round(device.get("temperature"), 1)
+        return None
+
+
+# ---------------------
+# Bonded Devices
+# ---------------------
+class BondedDeviceTemperatureSensor(BaseRaptSensor):
+    """Bonded Device Temperature Sensor."""
+
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(coordinator, device_id, model="Bonded Device", name_suffix="Temperature", unique_suffix="temperature", unit="°C")
+        self._attr_device_class = SensorDeviceClass.TEMPERATURE
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def unit_of_measurement(self):
+        unit = self.coordinator.config_entry.data.get(CONF_TEMPERATURE_UNIT, DEFAULT_TEMPERATURE_UNIT)
+        return "°F" if unit == "F" else "°C"
+
+    @property
+    def native_value(self):
+        device = self.coordinator.data.get(self._device_id)
+        if device:
+            return device.get("temperature")
+        return None
+
+
+class BondedDeviceHumiditySensor(BaseRaptSensor):
+    """Bonded Device Humidity Sensor."""
+
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(coordinator, device_id, model="Bonded Device", name_suffix="Humidity", unique_suffix="humidity", unit="%")
+        self._attr_device_class = SensorDeviceClass.HUMIDITY
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def native_value(self):
+        device = self.coordinator.data.get(self._device_id)
+        if device and "telemetry" in device and device["telemetry"]:
+            return device["telemetry"][0].get("humidity")
+        return None
+
+
+class BondedDevicePressureSensor(BaseRaptSensor):
+    """Bonded Device Pressure Sensor."""
+
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(coordinator, device_id, model="Bonded Device", name_suffix="Pressure", unique_suffix="pressure", unit="kPa")
+        self._attr_device_class = SensorDeviceClass.PRESSURE
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def native_value(self):
+        device = self.coordinator.data.get(self._device_id)
+        if device and "telemetry" in device and device["telemetry"]:
+            return device["telemetry"][0].get("pressure")
+        return None
+
+
+class BondedDeviceBatterySensor(BaseRaptSensor):
+    """Bonded Device Battery Sensor."""
+
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(coordinator, device_id, model="Bonded Device", name_suffix="Battery", unique_suffix="battery", unit="%")
+        self._attr_device_class = SensorDeviceClass.BATTERY
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+
+    @property
+    def native_value(self):
+        """Return the current battery."""
+        device = self.coordinator.data.get(self._device_id)
+        if device:
+            return round(device.get("battery"), 1)
         return None

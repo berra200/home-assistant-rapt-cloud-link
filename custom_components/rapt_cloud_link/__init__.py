@@ -1,6 +1,7 @@
 from datetime import timedelta
 import logging
 
+from .coordinator.bonded_devices_coordinator import BondedDevicesDataUpdateCoordinator
 from .coordinator.brewzilla_coordinator import BrewZillaDataUpdateCoordinator
 from .coordinator.hydrometer_coordinator import HydrometerDataUpdateCoordinator
 from .coordinator.temperature_controller_coordinator import TemperatureControllerDataUpdateCoordinator
@@ -21,10 +22,12 @@ async def async_setup_entry(hass, entry):
     token_manager = TokenManager(hass, email, api_token, entry)
 
     # Coordinators
+    bonded_devices_coordinator = BondedDevicesDataUpdateCoordinator(hass, token_manager, update_interval, entry)
     brewzilla_coordinator = BrewZillaDataUpdateCoordinator(hass, token_manager, update_interval, entry)
     hydrometer_coordinator = HydrometerDataUpdateCoordinator(hass, token_manager, update_interval, entry)
     temperature_controller_coordinator = TemperatureControllerDataUpdateCoordinator(hass, token_manager, update_interval, entry)
 
+    await bonded_devices_coordinator.async_config_entry_first_refresh()
     await brewzilla_coordinator.async_config_entry_first_refresh()
     await hydrometer_coordinator.async_config_entry_first_refresh()
     await temperature_controller_coordinator.async_config_entry_first_refresh()
@@ -32,6 +35,7 @@ async def async_setup_entry(hass, entry):
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
         "token_manager": token_manager,
+        "bonded_devices_coordinator": bonded_devices_coordinator,
         "brewzilla_coordinator": brewzilla_coordinator,
         "hydrometer_coordinator": hydrometer_coordinator,
         "temperature_controller_coordinator": temperature_controller_coordinator,

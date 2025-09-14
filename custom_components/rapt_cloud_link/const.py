@@ -7,3 +7,10 @@ TOKEN_URL = "https://id.rapt.io/connect/token"
 
 CONF_TEMPERATURE_UNIT = "temperature_unit"
 DEFAULT_TEMPERATURE_UNIT = "C"
+
+BONDED_DEVICE_TYPES = [
+    "BLEHumidity",
+    "BLEPressure",
+    "BLETemperature",
+    "BLETempHumidity",
+]
