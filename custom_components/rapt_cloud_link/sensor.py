@@ -20,13 +20,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     # BrewZilla
     for device_id, device in brewzilla_coordinator.data.items():
-        name = device.get("name", f"BrewZilla {device_id}")
+        # name = device.get("name", f"BrewZilla {device_id}")
         sensors.append(BrewZillaTemperatureSensor(brewzilla_coordinator, device_id))
         sensors.append(BrewZillaConnectionStateSensor(brewzilla_coordinator, device_id))
 
     # Hydrometer
     for device_id, device in hydrometer_coordinator.data.items():
-        name = device.get("name", f"Pill {device_id}")
+        # name = device.get("name", f"Pill {device_id}")
         sensors.append(HydrometerTemperatureSensor(hydrometer_coordinator, device_id))
         sensors.append(HydrometerGravitySensor(hydrometer_coordinator, device_id))
         sensors.append(HydrometerBatterySensor(hydrometer_coordinator, device_id))
@@ -34,7 +34,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     # Temperature Controller
     for device_id, device in temperature_controller_coordinator.data.items():
-        name = device.get("name", f"Temperature Controller {device_id}")
+        # name = device.get("name", f"Temperature Controller {device_id}")
         sensors.append(TemperatureControllerTemperatureSensor(temperature_controller_coordinator, device_id))
 
 
@@ -216,5 +216,5 @@ class TemperatureControllerTemperatureSensor(BaseRaptSensor):
     def native_value(self):
         device = self.coordinator.data.get(self._device_id)
         if device:
-            return device.get("temperature")
+            return round(device.get("temperature"), 1)
         return None
