@@ -38,7 +38,7 @@ class BaseRaptSensor(BaseRaptEntity, SensorEntity):
     """Base class for RAPT sensors."""
     def __init__(self, coordinator, device_id, name_suffix, unique_suffix, unit=None, model="RAPT"):
         super().__init__(coordinator, device_id, model=model)
-        self._attr_name = name_suffix
+        self._attr_name = f"{self._device_name} {name_suffix}"
         self._attr_unique_id = f"{device_id}_{unique_suffix}"
         self._attr_native_unit_of_measurement = unit
 
@@ -47,7 +47,7 @@ class BaseRaptNumber(BaseRaptEntity, NumberEntity):
     """Base class for RAPT numbers."""
     def __init__(self, coordinator, device_id, name_suffix, unique_suffix, unit=None, min_val=None, max_val=None, step=None, mode=None, model="RAPT"):
         super().__init__(coordinator, device_id, model=model)
-        self._attr_name = f"{name_suffix}"
+        self._attr_name = f"{self._device_name} {name_suffix}"
         self._attr_unique_id = f"{device_id}_{unique_suffix}"
         self._attr_native_unit_of_measurement = unit
         self._attr_native_min_value = min_val
@@ -61,5 +61,5 @@ class BaseRaptSwitch(BaseRaptEntity, SwitchEntity):
     """Base class for RAPT switches."""
     def __init__(self, coordinator, device_id, name_suffix, unique_suffix, model="RAPT"):
         super().__init__(coordinator, device_id, model=model)
-        self._attr_name = name_suffix
+        self._attr_name = f"{self._device_name} {name_suffix}"
         self._attr_unique_id = f"{device_id}_{unique_suffix}"
