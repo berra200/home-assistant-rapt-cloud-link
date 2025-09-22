@@ -23,39 +23,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
         async_add_entities(numbers, update_before_add=True)
 
 
-# class BaseBrewZillaNumber(NumberEntity):
-#     """Base class for BrewZilla number entities."""
-#     def __init__(self, coordinator, device_id, name_suffix, unique_suffix, unit, min_val, max_val, step, mode=None):
-#         self.coordinator = coordinator
-#         self._device_id = device_id
-#         device_name = coordinator.data.get(device_id, {}).get("name", f"BrewZilla {device_id}")
-#         self._attr_name = f"{device_name} {name_suffix}"
-#         self._attr_unique_id = f"{device_id}_{unique_suffix}"
-#         self._attr_native_unit_of_measurement = unit
-#         self._attr_native_min_value = min_val
-#         self._attr_native_max_value = max_val
-#         self._attr_native_step = step
-#         if mode:
-#             self._attr_mode = mode
-#         self._unsub = None
-#         self._attr_device_info = {
-#             "identifiers": {(DOMAIN, str(device_id))},
-#             "name": device_name,
-#             "manufacturer": "RAPT",
-#             "model": "BrewZilla",
-#         }
-
-#     async def async_added_to_hass(self):
-#         self._unsub = self.coordinator.async_add_listener(self._handle_coordinator_update)
-
-#     async def async_will_remove_from_hass(self):
-#         if self._unsub:
-#             self._unsub()
-
-#     def _handle_coordinator_update(self):
-#         self.async_write_ha_state()
-
-
 class BrewZillaHeatUtilization(BaseRaptNumber):
     def __init__(self, coordinator, device_id):
         super().__init__(
@@ -137,42 +104,6 @@ class BrewZillaTargetTemperature(BaseRaptNumber):
         if success and self._device_id in self.coordinator.data:
             self.coordinator.data[self._device_id]["targetTemperature"] = float(value)
             self.async_write_ha_state()
-
-
-# ---------------------
-# Temperature Controller
-# ---------------------
-# class BaseTemperatureControllerNumber(NumberEntity):
-#     """Base class for Temperature Controller number entities."""
-#     def __init__(self, coordinator, device_id, name_suffix, unique_suffix, unit, min_val, max_val, step, mode=None):
-#         self.coordinator = coordinator
-#         self._device_id = device_id
-#         device_name = coordinator.data.get(device_id, {}).get("name", f"Temperature Controller {device_id}")
-#         self._attr_name = f"{device_name} {name_suffix}"
-#         self._attr_unique_id = f"{device_id}_{unique_suffix}"
-#         self._attr_native_unit_of_measurement = unit
-#         self._attr_native_min_value = min_val
-#         self._attr_native_max_value = max_val
-#         self._attr_native_step = step
-#         if mode:
-#             self._attr_mode = mode
-#         self._unsub = None
-#         self._attr_device_info = {
-#             "identifiers": {(DOMAIN, str(device_id))},
-#             "name": device_name,
-#             "manufacturer": "RAPT",
-#             "model": "Temperature Controller",
-#         }
-
-#     async def async_added_to_hass(self):
-#         self._unsub = self.coordinator.async_add_listener(self._handle_coordinator_update)
-
-#     async def async_will_remove_from_hass(self):
-#         if self._unsub:
-#             self._unsub()
-
-#     def _handle_coordinator_update(self):
-#         self.async_write_ha_state()
 
 
 class TemperatureControllerTargetTemperature(BaseRaptNumber):
