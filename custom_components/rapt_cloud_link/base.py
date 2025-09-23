@@ -8,6 +8,7 @@ from .const import DOMAIN
 
 class BaseRaptEntity(CoordinatorEntity):
     """Base class for all RAPT entities."""
+
     def __init__(self, coordinator, device_id, device_name=None, model="RAPT"):
         super().__init__(coordinator)
         device_name = coordinator.data.get(device_id, {}).get("name", f"Device {device_id}")
@@ -18,6 +19,7 @@ class BaseRaptEntity(CoordinatorEntity):
             "name": self._device_name,
             "manufacturer": "RAPT",
             "model": model,
+            "sw_version": coordinator.data.get(device_id, {}).get("firmwareVersion"),
         }
 
     async def async_added_to_hass(self):
@@ -36,6 +38,7 @@ class BaseRaptEntity(CoordinatorEntity):
 
 class BaseRaptSensor(BaseRaptEntity, SensorEntity):
     """Base class for RAPT sensors."""
+
     def __init__(self, coordinator, device_id, name_suffix, unique_suffix, unit=None, model="RAPT"):
         super().__init__(coordinator, device_id, model=model)
         self._attr_name = f"{self._device_name} {name_suffix}"
@@ -45,7 +48,20 @@ class BaseRaptSensor(BaseRaptEntity, SensorEntity):
 
 class BaseRaptNumber(BaseRaptEntity, NumberEntity):
     """Base class for RAPT numbers."""
-    def __init__(self, coordinator, device_id, name_suffix, unique_suffix, unit=None, min_val=None, max_val=None, step=None, mode=None, model="RAPT"):
+
+    def __init__(
+        self,
+        coordinator,
+        device_id,
+        name_suffix,
+        unique_suffix,
+        unit=None,
+        min_val=None,
+        max_val=None,
+        step=None,
+        mode=None,
+        model="RAPT",
+    ):
         super().__init__(coordinator, device_id, model=model)
         self._attr_name = f"{self._device_name} {name_suffix}"
         self._attr_unique_id = f"{device_id}_{unique_suffix}"
@@ -59,6 +75,7 @@ class BaseRaptNumber(BaseRaptEntity, NumberEntity):
 
 class BaseRaptSwitch(BaseRaptEntity, SwitchEntity):
     """Base class for RAPT switches."""
+
     def __init__(self, coordinator, device_id, name_suffix, unique_suffix, model="RAPT"):
         super().__init__(coordinator, device_id, model=model)
         self._attr_name = f"{self._device_name} {name_suffix}"
