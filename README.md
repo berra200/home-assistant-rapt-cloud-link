@@ -10,19 +10,20 @@ This is a custom integration for Home Assistant that connects to [RAPT Cloud](ht
 - Supports multiple device types including:
   - BrewZilla (temperature, heating, pump, etc.)
   - RAPT Pill (gravity, temperature, battery)
+  - Bonded devices (RAPT Bluethooth Thermometer)
 - Displays sensor values such as:
-  - Temperature (°C)
-  - Specific Gravity (SG)
-  - Battery Voltage (V)
+  - Temperature
+  - Specific Gravity
+  - Battery
   - Target Temperature
   - Heating State
   - Pump State
 - Control entities:
   - Heating switch
   - Pump switch
-  - Heating Utilization (%)
-  - Pump Utilization (%)
-  - Target Temperature (°C)
+  - Heating Utilization
+  - Pump Utilization
+  - Target Temperature
 
 ## Installation (via HACS)
 
