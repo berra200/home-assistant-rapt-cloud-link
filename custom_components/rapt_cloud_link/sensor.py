@@ -274,7 +274,7 @@ class BondedDeviceTemperatureSensor(BaseRaptSensor):
     def native_value(self):
         device = self.coordinator.data.get(self._device_id)
         if device:
-            return device.get("temperature")
+            return round(device.get("temperature"), 1)
         return None
 
 
