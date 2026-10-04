@@ -18,6 +18,21 @@ This is a custom integration for Home Assistant that connects to [RAPT Cloud](ht
   - Target Temperature
   - Heating State
   - Pump State
+  - BrewZilla Profile and Profile Step: the name of the profile a BrewZilla is
+    running and of its active step, `unknown` when no profile session is
+    active. The step sensor carries the step number and count, control and end
+    types, duration (seconds, `Duration` steps only), target temperature, start
+    time and the next step's name as attributes.
+  - BrewZilla Profile Step End: when the active step's duration runs out, for
+    `Duration` steps counted from their start. The start is read from the
+    BrewZilla's telemetry once per step, so it survives a restart.
+  - BrewZilla Profile Session (binary): on while a profile session runs.
+  - BrewZilla At Target Temperature (binary): on while the temperature the
+    BrewZilla regulates on (its bonded probe, unless set to use its internal
+    sensor) is within its heating hysteresis of the target.
+  - Pill Gravity Velocity, in points per day (one point is 0.001 SG), and Last
+    Activity, when the Pill last reported. The Pill Connection sensor now reads
+    `unknown` rather than `Disconnected`, as the API does not report it for Pills.
 - Control entities:
   - Heating switch
   - Pump switch
