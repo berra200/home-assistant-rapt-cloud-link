@@ -33,6 +33,17 @@ class BrewZillaAPI:
             resp.raise_for_status()
             return await resp.json()
 
+    async def get_profile(self, profile_id):
+        session = async_get_clientsession(self.hass)
+        url = self._get_url(f"/Profiles/GetProfile?profileId={profile_id}")
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Accept": "application/json",
+        }
+        async with session.get(url, headers=headers) as resp:
+            resp.raise_for_status()
+            return await resp.json()
+
     async def set_heating_enabled(self, device_id, enabled):
         session = async_get_clientsession(self.hass)
         url = self._get_url(f"/BrewZillas/SetHeatingEnabled?brewZillaId={device_id}&state={str(enabled).lower()}")

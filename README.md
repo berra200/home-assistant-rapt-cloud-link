@@ -18,6 +18,11 @@ This is a custom integration for Home Assistant that connects to [RAPT Cloud](ht
   - Target Temperature
   - Heating State
   - Pump State
+  - BrewZilla Profile and Profile Step: the name of the profile a BrewZilla is
+    running and of its active step, `unknown` when no profile session is
+    active. The step sensor carries the step number and count, control and end
+    types, duration (seconds, `Duration` steps only), target temperature and
+    the next step's name as attributes.
 - Control entities:
   - Heating switch
   - Pump switch

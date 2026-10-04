@@ -36,6 +36,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         # name = device.get("name", f"BrewZilla {device_id}")
         sensors.append(BrewZillaTemperatureSensor(brewzilla_coordinator, device_id))
         sensors.append(BrewZillaConnectionStateSensor(brewzilla_coordinator, device_id))
+        sensors.append(BrewZillaProfileSensor(brewzilla_coordinator, device_id))
+        sensors.append(BrewZillaProfileStepSensor(brewzilla_coordinator, device_id))
 
     # Hydrometer
     for device_id, device in hydrometer_coordinator.data.items():
@@ -107,6 +109,94 @@ class BrewZillaConnectionStateSensor(BaseRaptSensor):
         if device:
             return device.get("connectionState", "Disconnected")
         return "Disconnected"
+
+
+def _active_profile_steps(device):
+    """Return the active profile's steps in order, and the index of the active one."""
+    session = device.get("activeProfileSession") or {}
+    profile = session.get("profile") or {}
+    steps = sorted(profile.get("steps") or [], key=lambda step: step.get("order", 0))
+    step_id = device.get("activeProfileStepId")
+    index = next((i for i, step in enumerate(steps) if step.get("id") == step_id), None)
+    return steps, index
+
+
+class BrewZillaProfileSensor(BaseRaptSensor):
+    """BrewZilla Profile Sensor: the profile its session is running, if any."""
+
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(
+            coordinator,
+            device_id,
+            model="BrewZilla",
+            name_suffix="Profile",
+            unique_suffix="profile",
+        )
+        self._attr_icon = "mdi:clipboard-list-outline"
+
+    @property
+    def native_value(self):
+        device = self.coordinator.data.get(self._device_id)
+        if device:
+            session = device.get("activeProfileSession") or {}
+            return (session.get("profile") or {}).get("name")
+        return None
+
+    @property
+    def extra_state_attributes(self):
+        device = self.coordinator.data.get(self._device_id) or {}
+        session = device.get("activeProfileSession")
+        if not session:
+            return {}
+        steps, _ = _active_profile_steps(device)
+        return {
+            "profile_id": device.get("activeProfileId"),
+            "session_id": session.get("id"),
+            "session_start": session.get("startDate"),
+            "profile_length": session.get("profileLength"),
+            "step_count": len(steps),
+        }
+
+
+class BrewZillaProfileStepSensor(BaseRaptSensor):
+    """BrewZilla Profile Step Sensor: the step its profile session is at, if any."""
+
+    def __init__(self, coordinator, device_id: str):
+        super().__init__(
+            coordinator,
+            device_id,
+            model="BrewZilla",
+            name_suffix="Profile Step",
+            unique_suffix="profile_step",
+        )
+        self._attr_icon = "mdi:format-list-numbered"
+
+    @property
+    def native_value(self):
+        device = self.coordinator.data.get(self._device_id)
+        if device:
+            steps, index = _active_profile_steps(device)
+            if index is not None:
+                # A state is capped at 255 characters
+                return (steps[index].get("name") or f"Step {index + 1}")[:255]
+        return None
+
+    @property
+    def extra_state_attributes(self):
+        steps, index = _active_profile_steps(self.coordinator.data.get(self._device_id) or {})
+        if index is None:
+            return {}
+        step = steps[index]
+        return {
+            "step_id": step.get("id"),
+            "step_number": index + 1,
+            "step_count": len(steps),
+            "control_type": step.get("controlType"),
+            "end_type": step.get("endType"),
+            "duration": step.get("length") if step.get("endType") == "Duration" else None,
+            "target_temperature": step.get("temperature"),
+            "next_step": steps[index + 1].get("name") if index + 1 < len(steps) else None,
+        }
 
 
 # ---------------------
