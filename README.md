@@ -26,7 +26,10 @@ This is a custom integration for Home Assistant that connects to [RAPT Cloud](ht
   - BrewZilla Profile Step End: when the active step's duration runs out, for
     `Duration` steps counted from their start. The start is read from the
     BrewZilla's telemetry once per step, so it survives a restart.
-  - BrewZilla Profile Session (binary): on while a profile session runs.
+  - BrewZilla Profile Session (binary): on while a profile session runs, with
+    the session's id, name and start as attributes. A session started from the
+    RAPT Brew app may run with no profile, leaving the Profile and Profile Step
+    sensors unknown, so this is where its name shows.
   - BrewZilla At Target Temperature (binary): on while the temperature the
     BrewZilla regulates on (its bonded probe, unless set to use its internal
     sensor) is within its heating hysteresis of the target.

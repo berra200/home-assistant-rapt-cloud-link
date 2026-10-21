@@ -50,6 +50,20 @@ class ProfileSessionBinarySensor(BaseRaptBinarySensor):
         device = self.coordinator.data.get(self._device_id)
         return bool(device and device.get("activeProfileSession"))
 
+    @property
+    def extra_state_attributes(self):
+        # A session started from the RAPT Brew app can run with no profile at all,
+        # leaving its name and start as the only things to show
+        device = self.coordinator.data.get(self._device_id) or {}
+        session = device.get("activeProfileSession")
+        if not session:
+            return {}
+        return {
+            "session_id": session.get("id"),
+            "session_name": session.get("name"),
+            "session_start": session.get("startDate"),
+        }
+
 
 class BrewZillaAtTargetTemperatureBinarySensor(BaseRaptBinarySensor):
     """BrewZilla At Target Temperature Binary Sensor.
