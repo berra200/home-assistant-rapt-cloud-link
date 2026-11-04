@@ -53,11 +53,10 @@ class ProfileSessionBinarySensor(BaseRaptBinarySensor):
     @property
     def extra_state_attributes(self):
         # A session started from the RAPT Brew app can run with no profile at all,
-        # leaving its name and start as the only things to show
+        # leaving its name and start as the only things to show. The keys stay
+        # present while idle so dashboards and templates can always read them.
         device = self.coordinator.data.get(self._device_id) or {}
-        session = device.get("activeProfileSession")
-        if not session:
-            return {}
+        session = device.get("activeProfileSession") or {}
         return {
             "session_id": session.get("id"),
             "session_name": session.get("name"),
