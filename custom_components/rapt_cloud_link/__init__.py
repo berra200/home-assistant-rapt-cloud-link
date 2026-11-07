@@ -10,7 +10,7 @@ from .const import DOMAIN
 from .api.token_manager import TokenManager
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS = ["sensor", "switch", "number"]
+PLATFORMS = ["sensor", "switch", "number", "binary_sensor"]
 
 async def async_setup_entry(hass, entry):
     update_interval = timedelta(minutes=entry.options.get("poll_interval", 3))

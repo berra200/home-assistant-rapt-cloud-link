@@ -11,6 +11,8 @@ class HydrometerDataUpdateCoordinator(BaseRaptCoordinator):
         try:
             api = await self._get_token_and_api(HydrometerAPI)
             devices = await api.get_hydrometers()
+            for device in devices:
+                await self._attach_active_profile(api, device)
             return {device["id"]: device for device in devices if "id" in device}
         except Exception as err:
             raise UpdateFailed(f"Failed to fetch Hydrometer data: {err}") from err
