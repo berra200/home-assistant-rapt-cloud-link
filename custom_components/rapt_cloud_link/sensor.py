@@ -120,11 +120,15 @@ class BrewZillaConnectionStateSensor(BaseRaptSensor):
 
 
 def _normalize_gravity(sg):
-    """Return a gravity as SG, which the API sometimes reports in thousandths (1050 for 1.050)."""
+    """Return a gravity as SG, which the API sometimes reports in thousandths (1050 for 1.050).
+
+    Divide once rather than until the value drops below 10, which turned a gravity
+    under 1.000 (998 for 0.998) into 9.98.
+    """
     if sg is None:
         return None
-    while sg > 10:
-        sg /= 10
+    if sg > 10:
+        sg /= 1000
     return round(sg, 3)
 
 
